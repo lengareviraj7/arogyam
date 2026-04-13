@@ -84,7 +84,7 @@ function AppInner() {
         <Navbar />
         <MainLayout>
           <AnimatePresence mode="wait">
-            <Routes>
+            <Routes location={location} key={location.pathname}>
               {/* Public Routes */}
               <Route path="/" element={<Landing />} />
               
