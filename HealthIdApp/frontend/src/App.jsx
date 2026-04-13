@@ -55,13 +55,16 @@ const ProtectedAdminRoute = ({ children }) => {
   return children;
 };
 
-// Layout wrapper that switches between full-bleed (landing) and constrained (app)
+// Layout wrapper that switches between full-bleed (landing), admin-bleed (admin), and constrained (app)
 const MainLayout = ({ children }) => {
   const location = useLocation();
   const isLanding = location.pathname === '/';
+  const isAdmin = location.pathname.startsWith('/admin/dashboard');
+
+  const layoutClass = isLanding ? 'full-bleed' : isAdmin ? 'admin-bleed' : 'constrained';
 
   return (
-    <main className={`main-content ${isLanding ? 'full-bleed' : 'constrained'}`}>
+    <main className={`main-content ${layoutClass}`}>
       {children}
     </main>
   );

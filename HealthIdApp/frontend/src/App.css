@@ -22,6 +22,12 @@
   padding: 0;
 }
 
+.main-content.admin-bleed {
+  max-width: none;
+  padding: 0;
+  padding-top: 72px; /* Offset for fixed navbar */
+}
+
 /* Page Transitions Container */
 .page-transition-wrapper {
   width: 100%;
