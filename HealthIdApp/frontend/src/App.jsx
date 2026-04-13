@@ -1,12 +1,16 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import './App.css';
 import { useAuth, AuthProvider } from './context/AuthContext';
 import { AnimatePresence } from 'framer-motion';
 import { Toaster } from 'sonner';
 
-// Layout
+// Shell Components
 import Navbar from './components/Navbar';
+import SmoothScroll from './components/SmoothScroll';
+import Preloader from './components/Preloader';
+import CustomCursor from './components/CustomCursor';
+import ScrollProgress from './components/ScrollProgress';
 
 // Public Pages
 import Landing from './pages/Landing';
@@ -51,46 +55,85 @@ const ProtectedAdminRoute = ({ children }) => {
   return children;
 };
 
+// Layout wrapper that switches between full-bleed (landing) and constrained (app)
+const MainLayout = ({ children }) => {
+  const location = useLocation();
+  const isLanding = location.pathname === '/';
+
+  return (
+    <main className={`main-content ${isLanding ? 'full-bleed' : 'constrained'}`}>
+      {children}
+    </main>
+  );
+};
+
+function AppInner() {
+  const [preloaderDone, setPreloaderDone] = useState(false);
+
+  return (
+    <>
+      <Preloader onComplete={() => setPreloaderDone(true)} />
+      <CustomCursor />
+      <ScrollProgress />
+      <div className="grain-overlay" aria-hidden="true" />
+      
+      <div className="app-container">
+        <Navbar />
+        <MainLayout>
+          <AnimatePresence mode="wait">
+            <Routes>
+              {/* Public Routes */}
+              <Route path="/" element={<Landing />} />
+              
+              {/* Patient App Flow */}
+              <Route path="/patient/login" element={<PatientLogin />} />
+              <Route path="/patient/register" element={<PatientRegister />} />
+              <Route path="/patient/dashboard" element={<ProtectedPatientRoute><PatientDashboard /></ProtectedPatientRoute>} />
+              <Route path="/patient/records" element={<ProtectedPatientRoute><MyRecords /></ProtectedPatientRoute>} />
+              <Route path="/patient/consents" element={<ProtectedPatientRoute><MyConsents /></ProtectedPatientRoute>} />
+              <Route path="/patient/healthcard" element={<ProtectedPatientRoute><HealthCard /></ProtectedPatientRoute>} />
+
+              {/* Hospital App Flow */}
+              <Route path="/hospital/login" element={<HospitalLogin />} />
+              <Route path="/hospital/register" element={<HospitalRegister />} />
+              <Route path="/hospital/dashboard" element={<ProtectedHospitalRoute><HospitalDashboard /></ProtectedHospitalRoute>} />
+              <Route path="/hospital/search" element={<ProtectedHospitalRoute><SearchPatient /></ProtectedHospitalRoute>} />
+              <Route path="/hospital/consent" element={<ProtectedHospitalRoute><RequestConsent /></ProtectedHospitalRoute>} />
+              <Route path="/hospital/upload" element={<ProtectedHospitalRoute><UploadRecord /></ProtectedHospitalRoute>} />
+              <Route path="/hospital/patients" element={<ProtectedHospitalRoute><MyPatients /></ProtectedHospitalRoute>} />
+              
+              {/* Admin Flow */}
+              <Route path="/admin/login" element={<AdminLogin />} />
+              <Route path="/admin/dashboard" element={<ProtectedAdminRoute><AdminDashboard /></ProtectedAdminRoute>} />
+
+              {/* Fallback */}
+              <Route path="*" element={<Navigate to="/" />} />
+            </Routes>
+          </AnimatePresence>
+        </MainLayout>
+      </div>
+    </>
+  );
+}
+
 function App() {
   return (
     <AuthProvider>
       <Router>
-        <Toaster position="bottom-right" richColors />
-        <div className="app-container">
-          <Navbar />
-          <main className="main-content">
-            <AnimatePresence mode="wait">
-              <Routes>
-                {/* Public Routes */}
-                <Route path="/" element={<Landing />} />
-                
-                {/* Patient App Flow */}
-                <Route path="/patient/login" element={<PatientLogin />} />
-                <Route path="/patient/register" element={<PatientRegister />} />
-                <Route path="/patient/dashboard" element={<ProtectedPatientRoute><PatientDashboard /></ProtectedPatientRoute>} />
-                <Route path="/patient/records" element={<ProtectedPatientRoute><MyRecords /></ProtectedPatientRoute>} />
-                <Route path="/patient/consents" element={<ProtectedPatientRoute><MyConsents /></ProtectedPatientRoute>} />
-                <Route path="/patient/healthcard" element={<ProtectedPatientRoute><HealthCard /></ProtectedPatientRoute>} />
-
-                {/* Hospital App Flow */}
-                <Route path="/hospital/login" element={<HospitalLogin />} />
-                <Route path="/hospital/register" element={<HospitalRegister />} />
-                <Route path="/hospital/dashboard" element={<ProtectedHospitalRoute><HospitalDashboard /></ProtectedHospitalRoute>} />
-                <Route path="/hospital/search" element={<ProtectedHospitalRoute><SearchPatient /></ProtectedHospitalRoute>} />
-                <Route path="/hospital/consent" element={<ProtectedHospitalRoute><RequestConsent /></ProtectedHospitalRoute>} />
-                <Route path="/hospital/upload" element={<ProtectedHospitalRoute><UploadRecord /></ProtectedHospitalRoute>} />
-                <Route path="/hospital/patients" element={<ProtectedHospitalRoute><MyPatients /></ProtectedHospitalRoute>} />
-                
-                {/* Admin Flow */}
-                <Route path="/admin/login" element={<AdminLogin />} />
-                <Route path="/admin/dashboard" element={<ProtectedAdminRoute><AdminDashboard /></ProtectedAdminRoute>} />
-
-                {/* Fallback */}
-                <Route path="*" element={<Navigate to="/" />} />
-              </Routes>
-            </AnimatePresence>
-          </main>
-        </div>
+        <SmoothScroll>
+          <Toaster
+            position="bottom-right"
+            richColors
+            toastOptions={{
+              style: {
+                background: 'var(--bg-elevated)',
+                border: '1px solid var(--border-subtle)',
+                color: 'var(--text-primary)',
+              },
+            }}
+          />
+          <AppInner />
+        </SmoothScroll>
       </Router>
     </AuthProvider>
   );
