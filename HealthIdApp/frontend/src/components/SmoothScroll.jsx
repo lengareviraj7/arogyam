@@ -21,6 +21,8 @@ const SmoothScroll = ({ children }) => {
       smoothWheel: true,
       wheelMultiplier: 1,
       touchMultiplier: 2,
+      wrapper: window,
+      content: document.documentElement,
     });
 
     lenisRef.current = lenis;

@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import api from '../../api/axios';
 import { FaFilePdf, FaImage, FaStethoscope } from 'react-icons/fa';
 
 const MyRecords = () => {
+  const { t } = useTranslation();
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -29,13 +31,13 @@ const MyRecords = () => {
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-      <h2 className="heading-gradient" style={{ marginBottom: '2rem' }}>My Medical Records</h2>
+      <h2 className="heading-gradient" style={{ marginBottom: '2rem' }}>{t('patient.recordsTitle')}</h2>
       
       {loading ? (
-        <div style={{ textAlign: 'center', color: 'var(--secondary-color)' }}>Loading records...</div>
+        <div style={{ textAlign: 'center', color: 'var(--secondary-color)' }}>{t('patient.loadingRecords')}</div>
       ) : records.length === 0 ? (
         <div className="glass-panel text-center" style={{ color: 'var(--text-secondary)', padding: '3rem' }}>
-          No medical records found. Let your hospital upload records to your Health ID.
+          {t('patient.noRecords')}
         </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
@@ -53,19 +55,19 @@ const MyRecords = () => {
                   {getIcon(record.recordType)}
                 </div>
                 <div>
-                  <h3 style={{ fontSize: '1.1rem' }}>{record.recordType || 'Medical Record'}</h3>
+                  <h3 style={{ fontSize: '1.1rem' }}>{record.recordType || t('patient.medicalRecord')}</h3>
                   <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                    Uploaded: {new Date(record.createdAt).toLocaleDateString()}
+                    {t('patient.uploaded')} {new Date(record.createdAt).toLocaleDateString()}
                   </p>
                 </div>
               </div>
               <div style={{ borderTop: '1px solid var(--glass-border)', paddingTop: '1rem' }}>
                 <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-                  <strong>Hospital:</strong> {record.hospital?.hospitalName || 'Unknown'}
+                  <strong>{t('patient.hospital')}</strong> {record.hospital?.hospitalName || t('patient.unknown')}
                 </p>
               </div>
               <a href={record.fileUrl?.startsWith('http') ? record.fileUrl : `http://localhost:8000${record.fileUrl}`} target="_blank" rel="noreferrer" className="secondary-btn" style={{ textAlign: 'center', marginTop: 'auto' }}>
-                View Document
+                {t('patient.viewDocument')}
               </a>
             </motion.div>
           ))}

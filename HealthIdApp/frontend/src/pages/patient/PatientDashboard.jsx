@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaNotesMedical, FaRegIdCard, FaClipboardCheck, FaHospitalUser, FaQrcode } from 'react-icons/fa';
+import { FaNotesMedical, FaRegIdCard, FaClipboardCheck, FaHospitalUser, FaQrcode, FaHospital, FaUsers, FaHeartbeat } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import MagneticButton from '../../components/MagneticButton';
 import { QRCodeSVG } from 'qrcode.react';
 
 const PatientDashboard = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -16,8 +18,8 @@ const PatientDashboard = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
-      toast.success('Medical timeline synced successfully.', {
-        description: 'Your health data is up to date and secure.',
+      toast.success(t('patient.timelineSynced'), {
+        description: t('patient.timelineSyncedDesc'),
       });
     }, 1500);
     return () => clearTimeout(timer);
@@ -38,7 +40,7 @@ const PatientDashboard = () => {
   if (loading) {
     return (
       <div className="dashboard-container" style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem' }}>
-        <h1 className="heading-gradient" style={{ marginBottom: '2rem' }}>Authenticating...</h1>
+        <h1 className="heading-gradient" style={{ marginBottom: '2rem' }}>{t('patient.authenticating')}</h1>
         <div className="bento-wrapper">
           <div className="skeleton bento-tile span-2 row-span-2" style={{ minHeight: '300px' }} />
           <div className="skeleton bento-tile span-2" style={{ minHeight: '140px' }} />
@@ -58,8 +60,8 @@ const PatientDashboard = () => {
     >
       <motion.div variants={tileVariants} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
         <div>
-          <h1 className="heading-gradient" style={{ fontSize: '2.5rem' }}>Overview</h1>
-          <p style={{ color: 'var(--text-secondary)' }}>Welcome back to your private health network.</p>
+          <h1 className="heading-gradient" style={{ fontSize: '2.5rem' }}>{t('patient.dashboardTitle')}</h1>
+          <p style={{ color: 'var(--text-secondary)' }}>{t('patient.welcomeMessage')}</p>
         </div>
       </motion.div>
 
@@ -70,7 +72,7 @@ const PatientDashboard = () => {
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                <div>
-                 <p style={{ color: '#86868b', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Global Health ID</p>
+                 <p style={{ color: '#86868b', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px' }}>{t('patient.globalHealthId')}</p>
                  <h2 style={{ fontSize: '2.5rem', marginTop: '0.5rem', marginBottom: '0.5rem' }}>{user?.name}</h2>
                  <p style={{ fontSize: '1.5rem', letterSpacing: '2px', color: 'var(--accent-pink)', fontFamily: 'monospace' }}>{user?.healthId}</p>
                </div>
@@ -80,9 +82,9 @@ const PatientDashboard = () => {
             </div>
           </div>
           <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '1.5rem', marginTop: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ color: '#86868b' }}>Status: <span style={{ color: '#34c759' }}>Fully Encrypted</span></span>
+            <span style={{ color: '#86868b' }}>{t('patient.statusEncrypted')} <span style={{ color: '#34c759' }}>{t('patient.fullyEncrypted')}</span></span>
             <MagneticButton className="primary-btn" onClick={() => handleActionClick('/patient/healthcard', 'Digital Passport')}>
-              View Passport
+              {t('patient.viewPassport')}
             </MagneticButton>
           </div>
         </motion.div>
@@ -94,8 +96,8 @@ const PatientDashboard = () => {
               <FaClipboardCheck style={{ fontSize: '2rem', color: '#34c759' }} />
             </div>
             <div>
-              <h3 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>Data Flow</h3>
-              <p style={{ color: 'var(--text-secondary)' }}>You have no pending consent requests.</p>
+              <h3 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>{t('patient.dataFlow')}</h3>
+              <p style={{ color: 'var(--text-secondary)' }}>{t('patient.noPendingConsents')}</p>
             </div>
           </div>
         </motion.div>
@@ -103,15 +105,36 @@ const PatientDashboard = () => {
         {/* ACTION TILE: RECORDS */}
         <motion.div variants={tileVariants} className="bento-tile" onClick={() => handleActionClick('/patient/records', 'Medical Records')} style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
           <FaNotesMedical style={{ fontSize: '2.5rem', color: '#007aff', marginBottom: '1rem' }} />
-          <h3 style={{ fontWeight: 700 }}>My Records</h3>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '0.5rem' }}>View Encrypted Files</p>
+          <h3 style={{ fontWeight: 700 }}>{t('patient.myRecordsTitle')}</h3>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '0.5rem' }}>{t('patient.viewEncrypted')}</p>
         </motion.div>
 
         {/* ACTION TILE: CONSENTS */}
         <motion.div variants={tileVariants} className="bento-tile" onClick={() => handleActionClick('/patient/consents', 'Access Controls')} style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
           <FaHospitalUser style={{ fontSize: '2.5rem', color: 'var(--accent-pink)', marginBottom: '1rem' }} />
-          <h3 style={{ fontWeight: 700 }}>Access Control</h3>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '0.5rem' }}>Manage Doctor Keys</p>
+          <h3 style={{ fontWeight: 700 }}>{t('patient.accessControl')}</h3>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '0.5rem' }}>{t('patient.manageDoctorKeys')}</p>
+        </motion.div>
+
+        {/* ACTION TILE: HOSPITALS */}
+        <motion.div variants={tileVariants} className="bento-tile" onClick={() => handleActionClick('/patient/hospitals', 'My Hospitals')} style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
+          <FaHospital style={{ fontSize: '2.5rem', color: 'var(--success)', marginBottom: '1rem' }} />
+          <h3 style={{ fontWeight: 700 }}>{t('patient.myHospitalsTitle')}</h3>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '0.5rem' }}>{t('patient.viewVisitedHospitals')}</p>
+        </motion.div>
+
+        {/* ACTION TILE: FAMILY MEMBERS */}
+        <motion.div variants={tileVariants} className="bento-tile" onClick={() => handleActionClick('/patient/family', 'Family Members')} style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
+          <FaUsers style={{ fontSize: '2.5rem', color: '#ff9500', marginBottom: '1rem' }} />
+          <h3 style={{ fontWeight: 700 }}>Family Members</h3>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '0.5rem' }}>Link dependent profiles</p>
+        </motion.div>
+
+        {/* ACTION TILE: MEDICAL PROFILE */}
+        <motion.div variants={tileVariants} className="bento-tile" onClick={() => handleActionClick('/patient/profile', 'Medical Profile')} style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
+          <FaHeartbeat style={{ fontSize: '2.5rem', color: '#ff3b30', marginBottom: '1rem' }} />
+          <h3 style={{ fontWeight: 700 }}>Medical Profile</h3>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '0.5rem' }}>Allergies & Contacts</p>
         </motion.div>
 
       </div>

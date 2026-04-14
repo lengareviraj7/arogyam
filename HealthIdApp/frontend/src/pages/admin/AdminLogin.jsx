@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import api from '../../api/axios';
 
 const AdminLogin = () => {
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -61,9 +63,9 @@ const AdminLogin = () => {
           >
             🛡️
           </motion.div>
-          <h2 style={{ fontSize: 'var(--text-2xl)', marginBottom: '6px' }}>Admin Access</h2>
+          <h2 style={{ fontSize: 'var(--text-2xl)', marginBottom: '6px' }}>{t('admin.loginTitle')}</h2>
           <p style={{ color: 'var(--text-tertiary)', fontSize: 'var(--text-sm)' }}>
-            Restricted area · Authorized personnel only
+            {t('admin.loginSubtitle')}
           </p>
         </div>
 
@@ -82,7 +84,7 @@ const AdminLogin = () => {
         {/* Form */}
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-lg)' }}>
           <div className="input-group">
-            <label>Email Address</label>
+            <label>{t('admin.emailAddress')}</label>
             <div style={{ position: 'relative', marginTop: '6px' }}>
               <svg
                 width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
@@ -104,7 +106,7 @@ const AdminLogin = () => {
           </div>
 
           <div className="input-group">
-            <label>Password</label>
+            <label>{t('admin.password')}</label>
             <div style={{ position: 'relative', marginTop: '6px' }}>
               <svg
                 width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
@@ -147,17 +149,17 @@ const AdminLogin = () => {
                     borderTopColor: 'white',
                   }}
                 />
-                Authenticating...
+                {t('admin.authenticating')}
               </span>
             ) : (
-              'Access Admin Panel'
+              t('admin.accessPanel')
             )}
           </motion.button>
         </form>
 
         {/* Footer Hint */}
         <p style={{ textAlign: 'center', marginTop: 'var(--space-xl)', color: 'var(--text-tertiary)', fontSize: '12px' }}>
-          Protected by HealthID Security
+          {t('admin.protectedBy')}
         </p>
       </div>
     </motion.div>

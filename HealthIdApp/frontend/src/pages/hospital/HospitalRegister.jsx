@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import api from '../../api/axios';
 
 const HospitalRegister = () => {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
-    hospitalName: '', regNumber: '', address: '', email: '', phone: '', password: '', doctors: ''
+    hospitalName: '', regNumber: '', address: '', email: '', phone: '', password: ''
   });
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -40,51 +42,48 @@ const HospitalRegister = () => {
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ maxWidth: '600px', margin: '2rem auto' }}>
       <div className="glass-panel">
-        <h2 className="heading-gradient text-center" style={{ marginBottom: '2rem' }}>Hospital Registration</h2>
+        <h2 className="heading-gradient text-center" style={{ marginBottom: '2rem' }}>{t('hospital.registerTitle')}</h2>
         
         {message && <div style={{ color: 'var(--secondary-color)', marginBottom: '1rem', textAlign: 'center', padding: '1rem', background: 'rgba(0, 242, 254, 0.1)', borderRadius: '8px' }}>{message}</div>}
 
         <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
           <div className="input-group" style={{ gridColumn: '1 / -1' }}>
-            <label>Hospital Name</label>
+            <label>{t('hospital.hospitalName')}</label>
             <input type="text" name="hospitalName" className="glass-input" required onChange={handleChange} />
           </div>
           <div className="input-group">
-            <label>Registration Number</label>
+            <label>{t('hospital.regNumber')}</label>
             <input type="text" name="regNumber" className="glass-input" required onChange={handleChange} />
           </div>
           <div className="input-group">
-            <label>Phone Number</label>
+            <label>{t('hospital.phoneNumber')}</label>
             <input type="tel" name="phone" className="glass-input" required onChange={handleChange} />
           </div>
           <div className="input-group">
-            <label>Email Address</label>
+            <label>{t('hospital.emailAddress')}</label>
             <input type="email" name="email" className="glass-input" required onChange={handleChange} />
           </div>
           <div className="input-group">
-            <label>Password</label>
+            <label>{t('hospital.password')}</label>
             <input type="password" name="password" className="glass-input" required onChange={handleChange} />
           </div>
           <div className="input-group" style={{ gridColumn: '1 / -1' }}>
-            <label>Complete Address</label>
+            <label>{t('hospital.completeAddress')}</label>
             <textarea name="address" className="glass-input" rows="2" onChange={handleChange}></textarea>
           </div>
+
           <div className="input-group" style={{ gridColumn: '1 / -1' }}>
-            <label>Number of Doctors (Approx)</label>
-            <input type="number" name="doctors" className="glass-input" onChange={handleChange} />
-          </div>
-          <div className="input-group" style={{ gridColumn: '1 / -1' }}>
-            <label>Upload Licence PDF (For Automated Verification)</label>
+            <label>{t('hospital.uploadLicence')}</label>
             <input type="file" accept=".pdf" className="glass-input" onChange={handleFileChange} style={{ paddingTop: '9px' }} />
           </div>
 
           <button type="submit" className="primary-btn" disabled={loading} style={{ gridColumn: '1 / -1', marginTop: '1rem' }}>
-            {loading ? 'Submitting Application...' : 'Submit Application'}
+            {loading ? t('hospital.submittingApp') : t('hospital.submitApp')}
           </button>
         </form>
 
         <p className="text-center" style={{ marginTop: '2rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-          Already approved? <Link to="/hospital/login" style={{ color: 'var(--secondary-color)' }}>Login Here</Link>
+          {t('hospital.alreadyApproved')} <Link to="/hospital/login" style={{ color: 'var(--secondary-color)' }}>{t('hospital.loginHere')}</Link>
         </p>
       </div>
     </motion.div>

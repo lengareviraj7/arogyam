@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, useInView, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import MorphingShape from '../components/MorphingShape';
 import TextReveal from '../components/TextReveal';
 import AnimatedCounter from '../components/AnimatedCounter';
@@ -30,38 +31,14 @@ const scaleIn = {
   })
 };
 
-/* ─── FAQ Data ─── */
-const faqData = [
-  {
-    q: 'What is a Health ID and why do I need one?',
-    a: 'A Health ID is your unique digital identity that links all your medical records across hospitals. Instead of carrying physical files, your prescriptions, reports, and history are securely stored and accessible whenever you need them.'
-  },
-  {
-    q: 'How is my data kept private and secure?',
-    a: 'Your records are encrypted and only accessible through an OTP-based consent system. Hospitals cannot view your data without your explicit permission. You control who sees what and for how long.'
-  },
-  {
-    q: 'Can any hospital access my records?',
-    a: 'No. Only government-registered and verified hospitals on our platform can request access. Even then, you must grant them temporary permission via a one-time password sent to your phone.'
-  },
-  {
-    q: 'Is there a cost to use HealthID?',
-    a: 'HealthID is completely free for patients. Our mission is to make healthcare data accessible and secure for every citizen of India.'
-  },
-  {
-    q: 'What if I lose my phone or change my number?',
-    a: 'Your Health ID is linked to your Aadhaar and can be recovered through identity verification. Your records remain safe in the cloud regardless of device changes.'
-  },
-];
-
-/* ─── Testimonial Data ─── */
-const testimonials = [
-  { text: "Finally, I don't need to carry a folder full of old reports. My new doctor pulled up everything in seconds.", name: 'Priya S.', role: 'Patient, Mumbai', color: '#FF3366' },
-  { text: "The consent system is brilliant. I feel genuinely in control of who sees my family's medical data.", name: 'Rahul M.', role: 'Patient, Delhi', color: '#00D4AA' },
-  { text: "As a hospital, onboarding was seamless. The verification process builds trust with our patients.", name: 'Dr. Anjali K.', role: 'Apollo Hospitals', color: '#FFB347' },
-  { text: "We reduced patient intake time by 40%. Records transfer instantly when consent is granted.", name: 'Dr. Vikram P.', role: 'Max Healthcare', color: '#8B5CF6' },
-  { text: "My grandmother's entire medical history across 3 cities — now in one place. This should have existed years ago.", name: 'Sneha T.', role: 'Patient, Pune', color: '#FF3366' },
-  { text: "The OTP system is simple enough that even my parents use it without any confusion.", name: 'Arjun D.', role: 'Patient, Bangalore', color: '#00D4AA' },
+/* ─── Testimonial static authors (names/roles stay English) ─── */
+const testimonialAuthors = [
+  { name: 'Priya S.', role: 'Patient, Mumbai', color: '#FF3366', key: 'testimonial1' },
+  { name: 'Rahul M.', role: 'Patient, Delhi', color: '#00D4AA', key: 'testimonial2' },
+  { name: 'Dr. Anjali K.', role: 'Apollo Hospitals', color: '#FFB347', key: 'testimonial3' },
+  { name: 'Dr. Vikram P.', role: 'Max Healthcare', color: '#8B5CF6', key: 'testimonial4' },
+  { name: 'Sneha T.', role: 'Patient, Pune', color: '#FF3366', key: 'testimonial5' },
+  { name: 'Arjun D.', role: 'Patient, Bangalore', color: '#00D4AA', key: 'testimonial6' },
 ];
 
 /* ─── FAQ Item Component ─── */
@@ -116,6 +93,7 @@ const FAQItem = ({ question, answer, index }) => {
    LANDING PAGE
 ═══════════════════════════════════════════ */
 const Landing = () => {
+  const { t } = useTranslation();
   const [stats, setStats] = useState({
     patients: 12000,
     hospitals: 50,
@@ -134,6 +112,20 @@ const Landing = () => {
     };
     fetchStats();
   }, []);
+
+  // Build FAQ and testimonial data from translations
+  const faqData = [
+    { q: t('landing.faq1Q'), a: t('landing.faq1A') },
+    { q: t('landing.faq2Q'), a: t('landing.faq2A') },
+    { q: t('landing.faq3Q'), a: t('landing.faq3A') },
+    { q: t('landing.faq4Q'), a: t('landing.faq4A') },
+    { q: t('landing.faq5Q'), a: t('landing.faq5A') },
+  ];
+
+  const testimonials = testimonialAuthors.map(a => ({
+    ...a,
+    text: t(`landing.${a.key}`),
+  }));
   const heroRef = useRef(null);
   const { scrollYProgress: heroScroll } = useScroll({
     target: heroRef,
@@ -169,29 +161,31 @@ const Landing = () => {
             <motion.div variants={fadeUp} custom={0}>
               <div className="hero-badge">
                 <span className="hero-badge-dot" />
-                India's Digital Health Infrastructure
+                {t('landing.badge')}
               </div>
             </motion.div>
 
             <motion.h1 className="hero-headline" variants={fadeUp} custom={0.1}>
-              The <span className="accent">future</span> of<br />
-              health records
+              {t('landing.headline').split('<accent>').map((part, i) => {
+                if (i === 0) return <React.Fragment key={i}>{part}</React.Fragment>;
+                const [accent, rest] = part.split('</accent>');
+                return <React.Fragment key={i}><span className="accent">{accent}</span>{rest}</React.Fragment>;
+              })}
             </motion.h1>
 
             <motion.p className="hero-description" variants={fadeUp} custom={0.2}>
-              One secure identity. Every hospital. Complete control.
-              Your medical history, unified and protected by consent.
+              {t('landing.description')}
             </motion.p>
 
             <motion.div className="hero-actions" variants={fadeUp} custom={0.3}>
               <Link to="/patient/register" className="primary-btn" style={{ padding: '16px 36px', fontSize: '1.05rem' }}>
-                Create Your Health ID
+                {t('landing.ctaPrimary')}
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                   <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </Link>
               <Link to="/hospital/login" className="secondary-btn" style={{ padding: '16px 32px' }}>
-                For Hospitals
+                {t('landing.ctaHospital')}
               </Link>
             </motion.div>
           </motion.div>
@@ -213,8 +207,8 @@ const Landing = () => {
                     </svg>
                   </div>
                   <div>
-                    <div className="card-title">Health Card</div>
-                    <div className="card-subtitle">Active • Verified</div>
+                    <div className="card-title">{t('landing.card1Title')}</div>
+                    <div className="card-subtitle">{t('landing.card1Subtitle')}</div>
                   </div>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -247,8 +241,8 @@ const Landing = () => {
                     </svg>
                   </div>
                   <div>
-                    <div className="card-title">Consent Granted</div>
-                    <div className="card-subtitle">Apollo Hospital • 2min ago</div>
+                    <div className="card-title">{t('landing.card2Title')}</div>
+                    <div className="card-subtitle">{t('landing.card2Subtitle')}</div>
                   </div>
                 </div>
                 <div style={{
@@ -260,7 +254,7 @@ const Landing = () => {
                   fontWeight: 600,
                   marginTop: '8px'
                 }}>
-                  ✓ OTP Verified — Access for 24hrs
+                  {t('landing.card2Status')}
                 </div>
               </motion.div>
 
@@ -279,8 +273,8 @@ const Landing = () => {
                     </svg>
                   </div>
                   <div>
-                    <div className="card-title">Blood Report</div>
-                    <div className="card-subtitle">12 Apr 2026</div>
+                    <div className="card-title">{t('landing.card3Title')}</div>
+                    <div className="card-subtitle">{t('landing.card3Subtitle')}</div>
                   </div>
                 </div>
                 <div className="card-bar">
@@ -315,7 +309,7 @@ const Landing = () => {
           }}
         >
           <span style={{ fontSize: '0.7rem', color: 'var(--text-tertiary)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-            Scroll
+            {t('common.scroll')}
           </span>
           <motion.div
             animate={{ y: [0, 8, 0] }}
@@ -336,7 +330,7 @@ const Landing = () => {
           transition={{ duration: 0.8 }}
         >
           <TextReveal delay={0.1}>
-            Your health data should serve you — not be scattered across dusty files in hospitals you'll never visit again.
+            {t('landing.brandStatement')}
           </TextReveal>
         </motion.div>
       </section>
@@ -352,9 +346,9 @@ const Landing = () => {
           viewport={{ once: true }}
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
         >
-          <div className="section-label">Why HealthID</div>
+          <div className="section-label">{t('landing.featuresLabel')}</div>
           <h2 className="section-title">
-            Built for how healthcare<br />actually works in India
+            {t('landing.featuresTitle')}
           </h2>
         </motion.div>
 
@@ -367,10 +361,9 @@ const Landing = () => {
                 <path d="M8 7h8M8 11h5M8 15h7" stroke="var(--accent-primary)" strokeWidth="1.3" strokeLinecap="round"/>
               </svg>
             </div>
-            <h3 className="feature-title">Unified Medical Timeline</h3>
+            <h3 className="feature-title">{t('landing.feature1Title')}</h3>
             <p className="feature-description">
-              Every prescription, lab report, diagnosis, and doctor visit — from every hospital — in a single, chronological timeline. 
-              No more carrying bulky files or explaining your history from scratch at every new clinic.
+              {t('landing.feature1Desc')}
             </p>
           </GlowCard>
 
@@ -382,9 +375,9 @@ const Landing = () => {
                 <path d="M9 12l2 2 4-4" stroke="var(--accent-secondary)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </div>
-            <h3 className="feature-title">OTP-Based Consent</h3>
+            <h3 className="feature-title">{t('landing.feature2Title')}</h3>
             <p className="feature-description">
-              You hold the keys. No hospital can access your records without your explicit, time-limited OTP permission.
+              {t('landing.feature2Desc')}
             </p>
           </GlowCard>
 
@@ -396,9 +389,9 @@ const Landing = () => {
                 <path d="M9 12l2 2 4-4" stroke="#FFB347" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </div>
-            <h3 className="feature-title">Verified Hospitals</h3>
+            <h3 className="feature-title">{t('landing.feature3Title')}</h3>
             <p className="feature-description">
-              Every hospital on the platform is government-registered and verified. Your data only goes to real, trusted professionals.
+              {t('landing.feature3Desc')}
             </p>
           </GlowCard>
 
@@ -410,9 +403,9 @@ const Landing = () => {
                 <path d="M12 9v4M10 11h4" stroke="#8B5CF6" strokeWidth="1.5" strokeLinecap="round"/>
               </svg>
             </div>
-            <h3 className="feature-title">Instant Health Card</h3>
+            <h3 className="feature-title">{t('landing.feature4Title')}</h3>
             <p className="feature-description">
-              Generate a scannable digital health card with your QR code. Show it at any hospital for instant identity verification.
+              {t('landing.feature4Desc')}
             </p>
           </GlowCard>
 
@@ -424,10 +417,9 @@ const Landing = () => {
                 <path d="M4 9h16M9 9v11" stroke="var(--accent-secondary)" strokeWidth="1.3"/>
               </svg>
             </div>
-            <h3 className="feature-title">Admin Oversight & Analytics</h3>
+            <h3 className="feature-title">{t('landing.feature5Title')}</h3>
             <p className="feature-description">
-              Government administrators get a real-time dashboard showing hospital registrations, patient enrollment rates, 
-              consent patterns, and system health — enabling data-driven healthcare policy decisions across India.
+              {t('landing.feature5Desc')}
             </p>
           </GlowCard>
         </div>
@@ -444,9 +436,9 @@ const Landing = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
           >
-            <div className="section-label" style={{ textAlign: 'center' }}>Impact</div>
+            <div className="section-label" style={{ textAlign: 'center' }}>{t('landing.statsLabel')}</div>
             <h2 className="section-title" style={{ textAlign: 'center', margin: '0 auto' }}>
-              Numbers that matter
+              {t('landing.statsTitle')}
             </h2>
           </motion.div>
 
@@ -455,28 +447,28 @@ const Landing = () => {
               <div className="stat-number">
                 <AnimatedCounter end={stats.patients} suffix="+" useIndianFormat />
               </div>
-              <div className="stat-label">Health IDs Created</div>
+              <div className="stat-label">{t('landing.statHealthIds')}</div>
             </motion.div>
 
             <motion.div className="stat-item" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}>
               <div className="stat-number">
                 <AnimatedCounter end={stats.hospitals} suffix="+" />
               </div>
-              <div className="stat-label">Verified Hospitals</div>
+              <div className="stat-label">{t('landing.statHospitals')}</div>
             </motion.div>
 
             <motion.div className="stat-item" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.3, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}>
               <div className="stat-number">
                 <AnimatedCounter end={stats.statesCovered} suffix="" />
               </div>
-              <div className="stat-label">States Covered</div>
+              <div className="stat-label">{t('landing.statStates')}</div>
             </motion.div>
 
             <motion.div className="stat-item" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.4, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}>
               <div className="stat-number">
                 <AnimatedCounter end={stats.uptime} suffix="%" decimals={1} />
               </div>
-              <div className="stat-label">Uptime Reliability</div>
+              <div className="stat-label">{t('landing.statUptime')}</div>
             </motion.div>
           </div>
         </div>
@@ -492,18 +484,18 @@ const Landing = () => {
           viewport={{ once: true }}
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
         >
-          <div className="section-label">How It Works</div>
+          <div className="section-label">{t('landing.processLabel')}</div>
           <h2 className="section-title">
-            Four steps to digital health
+            {t('landing.processTitle')}
           </h2>
         </motion.div>
 
         <div className="process-steps">
           {[
-            { num: '01', title: 'Register', desc: 'Create your Health ID with your Aadhaar and phone number. Takes under 2 minutes.' },
-            { num: '02', title: 'Link Records', desc: "Hospitals upload your records securely. You'll get notified for every new entry." },
-            { num: '03', title: 'Grant Access', desc: 'When a new doctor needs your history, share it via a simple OTP — you choose the duration.' },
-            { num: '04', title: 'Stay Protected', desc: 'Revoke access anytime. View audit logs. Your data, your rules — always.' },
+            { num: '01', title: t('landing.step1Title'), desc: t('landing.step1Desc') },
+            { num: '02', title: t('landing.step2Title'), desc: t('landing.step2Desc') },
+            { num: '03', title: t('landing.step3Title'), desc: t('landing.step3Desc') },
+            { num: '04', title: t('landing.step4Title'), desc: t('landing.step4Desc') },
           ].map((step, i) => (
             <motion.div
               key={i}
@@ -532,24 +524,24 @@ const Landing = () => {
           viewport={{ once: true }}
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
         >
-          <div className="section-label">Voices</div>
+          <div className="section-label">{t('landing.testimonialsLabel')}</div>
           <h2 className="section-title">
-            Trusted by patients & hospitals
+            {t('landing.testimonialsTitle')}
           </h2>
         </motion.div>
 
         <div className="testimonials-track" aria-label="Testimonials">
           {/* Duplicate for infinite scroll */}
-          {[...testimonials, ...testimonials].map((t, i) => (
+          {[...testimonials, ...testimonials].map((tm, i) => (
             <div key={i} className="testimonial-card">
-              <p className="testimonial-text">"{t.text}"</p>
+              <p className="testimonial-text">"{tm.text}"</p>
               <div className="testimonial-author">
-                <div className="testimonial-avatar" style={{ background: `${t.color}20`, color: t.color }}>
-                  {t.name.charAt(0)}
+                <div className="testimonial-avatar" style={{ background: `${tm.color}20`, color: tm.color }}>
+                  {tm.name.charAt(0)}
                 </div>
                 <div>
-                  <div className="testimonial-name">{t.name}</div>
-                  <div className="testimonial-role">{t.role}</div>
+                  <div className="testimonial-name">{tm.name}</div>
+                  <div className="testimonial-role">{tm.role}</div>
                 </div>
               </div>
             </div>
@@ -568,9 +560,9 @@ const Landing = () => {
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
           style={{ textAlign: 'center' }}
         >
-          <div className="section-label">FAQ</div>
+          <div className="section-label">{t('landing.faqLabel')}</div>
           <h2 className="section-title" style={{ margin: '0 auto' }}>
-            Common questions
+            {t('landing.faqTitle')}
           </h2>
         </motion.div>
 
@@ -594,21 +586,21 @@ const Landing = () => {
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
         >
           <h2 className="cta-headline">
-            Your health records deserve<br />
-            <span className="accent-gradient">better than a dusty folder</span>
+            {t('landing.ctaHeadline')}<br />
+            <span className="accent-gradient">{t('landing.ctaAccent')}</span>
           </h2>
           <p className="cta-description">
-            Join India's growing digital health network. Free for patients. Instant setup. Complete privacy.
+            {t('landing.ctaDescription')}
           </p>
           <div className="cta-actions">
             <Link to="/patient/register" className="primary-btn" style={{ padding: '18px 40px', fontSize: '1.05rem' }}>
-              Create Your Health ID
+              {t('landing.ctaPrimary')}
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                 <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </Link>
             <Link to="/hospital/register" className="secondary-btn" style={{ padding: '18px 36px' }}>
-              Register Your Hospital
+              {t('landing.ctaRegisterHospital')}
             </Link>
           </div>
         </motion.div>
@@ -627,47 +619,47 @@ const Landing = () => {
               Health<span style={{ color: 'var(--accent-primary)' }}>ID</span>
             </div>
             <p className="footer-brand-desc">
-              India's digital health infrastructure. Secure, consent-based medical records for every citizen.
+              {t('landing.footerDesc')}
             </p>
           </div>
 
           <div>
-            <h4 className="footer-column-title">For Patients</h4>
+            <h4 className="footer-column-title">{t('landing.footerPatients')}</h4>
             <ul className="footer-links">
-              <li><Link to="/patient/register">Create Health ID</Link></li>
-              <li><Link to="/patient/login">Patient Login</Link></li>
-              <li><Link to="/patient/records">My Records</Link></li>
-              <li><Link to="/patient/healthcard">Health Card</Link></li>
+              <li><Link to="/patient/register">{t('landing.footerCreateHealthId')}</Link></li>
+              <li><Link to="/patient/login">{t('landing.footerPatientLogin')}</Link></li>
+              <li><Link to="/patient/records">{t('landing.footerMyRecords')}</Link></li>
+              <li><Link to="/patient/healthcard">{t('landing.footerHealthCard')}</Link></li>
             </ul>
           </div>
 
           <div>
-            <h4 className="footer-column-title">For Hospitals</h4>
+            <h4 className="footer-column-title">{t('landing.footerHospitals')}</h4>
             <ul className="footer-links">
-              <li><Link to="/hospital/register">Register Hospital</Link></li>
-              <li><Link to="/hospital/login">Hospital Login</Link></li>
-              <li><Link to="/hospital/search">Search Patients</Link></li>
-              <li><Link to="/hospital/upload">Upload Records</Link></li>
+              <li><Link to="/hospital/register">{t('landing.footerRegisterHospital')}</Link></li>
+              <li><Link to="/hospital/login">{t('landing.footerHospitalLogin')}</Link></li>
+              <li><Link to="/hospital/search">{t('landing.footerSearchPatients')}</Link></li>
+              <li><Link to="/hospital/upload">{t('landing.footerUploadRecords')}</Link></li>
             </ul>
           </div>
 
           <div>
-            <h4 className="footer-column-title">Platform</h4>
+            <h4 className="footer-column-title">{t('landing.footerPlatform')}</h4>
             <ul className="footer-links">
-              <li><Link to="/admin/login">Admin Portal</Link></li>
-              <li><a href="#privacy">Privacy Policy</a></li>
-              <li><a href="#terms">Terms of Service</a></li>
-              <li><a href="#security">Security</a></li>
+              <li><Link to="/admin/login">{t('landing.footerAdminPortal')}</Link></li>
+              <li><a href="#privacy">{t('landing.footerPrivacy')}</a></li>
+              <li><a href="#terms">{t('landing.footerTerms')}</a></li>
+              <li><a href="#security">{t('landing.footerSecurity')}</a></li>
             </ul>
           </div>
         </div>
 
         <div className="footer-bottom">
           <span className="footer-copyright">
-            © {new Date().getFullYear()} HealthID India. All rights reserved.
+            {t('landing.footerCopyright', { year: new Date().getFullYear() })}
           </span>
           <div className="footer-india-badge">
-            🇮🇳 Made in India
+            {t('common.madeInIndia')}
           </div>
         </div>
       </footer>

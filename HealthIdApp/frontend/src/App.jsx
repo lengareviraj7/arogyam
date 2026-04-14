@@ -22,6 +22,9 @@ import PatientDashboard from './pages/patient/PatientDashboard';
 import MyRecords from './pages/patient/MyRecords';
 import MyConsents from './pages/patient/MyConsents';
 import HealthCard from './pages/patient/HealthCard';
+import MyHospitals from './pages/patient/MyHospitals';
+import FamilyMembers from './pages/patient/FamilyMembers';
+import MedicalProfile from './pages/patient/MedicalProfile';
 
 // Hospital Pages
 import HospitalLogin from './pages/hospital/HospitalLogin';
@@ -31,6 +34,8 @@ import SearchPatient from './pages/hospital/SearchPatient';
 import RequestConsent from './pages/hospital/RequestConsent';
 import UploadRecord from './pages/hospital/UploadRecord';
 import MyPatients from './pages/hospital/MyPatients';
+import HospitalRecords from './pages/hospital/HospitalRecords';
+import ViewPatientRecords from './pages/hospital/ViewPatientRecords';
 
 // Admin Pages
 import AdminLogin from './pages/admin/AdminLogin';
@@ -72,6 +77,7 @@ const MainLayout = ({ children }) => {
 
 function AppInner() {
   const [preloaderDone, setPreloaderDone] = useState(false);
+  const location = useLocation();
 
   return (
     <>
@@ -95,6 +101,9 @@ function AppInner() {
               <Route path="/patient/records" element={<ProtectedPatientRoute><MyRecords /></ProtectedPatientRoute>} />
               <Route path="/patient/consents" element={<ProtectedPatientRoute><MyConsents /></ProtectedPatientRoute>} />
               <Route path="/patient/healthcard" element={<ProtectedPatientRoute><HealthCard /></ProtectedPatientRoute>} />
+              <Route path="/patient/hospitals" element={<ProtectedPatientRoute><MyHospitals /></ProtectedPatientRoute>} />
+              <Route path="/patient/family" element={<ProtectedPatientRoute><FamilyMembers /></ProtectedPatientRoute>} />
+              <Route path="/patient/profile" element={<ProtectedPatientRoute><MedicalProfile /></ProtectedPatientRoute>} />
 
               {/* Hospital App Flow */}
               <Route path="/hospital/login" element={<HospitalLogin />} />
@@ -104,6 +113,8 @@ function AppInner() {
               <Route path="/hospital/consent" element={<ProtectedHospitalRoute><RequestConsent /></ProtectedHospitalRoute>} />
               <Route path="/hospital/upload" element={<ProtectedHospitalRoute><UploadRecord /></ProtectedHospitalRoute>} />
               <Route path="/hospital/patients" element={<ProtectedHospitalRoute><MyPatients /></ProtectedHospitalRoute>} />
+              <Route path="/hospital/records" element={<ProtectedHospitalRoute><HospitalRecords /></ProtectedHospitalRoute>} />
+              <Route path="/hospital/records/:healthId" element={<ProtectedHospitalRoute><ViewPatientRecords /></ProtectedHospitalRoute>} />
               
               {/* Admin Flow */}
               <Route path="/admin/login" element={<AdminLogin />} />

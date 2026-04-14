@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import api from '../../api/axios';
 import { QRCodeSVG } from 'qrcode.react';
 
 const HealthCard = () => {
+  const { t } = useTranslation();
   const [cardData, setCardData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -21,7 +23,7 @@ const HealthCard = () => {
     fetchHealthCard();
   }, []);
 
-  if (loading) return <div style={{textAlign: 'center', color: 'var(--secondary-color)'}}>Loading...</div>;
+  if (loading) return <div style={{textAlign: 'center', color: 'var(--secondary-color)'}}>{t('common.loading')}</div>;
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
@@ -43,7 +45,7 @@ const HealthCard = () => {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '1rem', marginBottom: '1.5rem' }}>
           <div>
             <h2 style={{ letterSpacing: '2px', fontSize: '1.5rem', color: '#fff' }}>Health<span style={{ color: 'var(--secondary-color)' }}>ID</span></h2>
-            <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>Republic of India</p>
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>{t('patient.republicOfIndia')}</p>
           </div>
           <div style={{ padding: '0.5rem', background: '#fff', borderRadius: '8px' }}>
             {cardData && <QRCodeSVG value={cardData.healthId} size={70} />}
@@ -52,11 +54,11 @@ const HealthCard = () => {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <div>
-            <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px' }}>Cardholder Name</p>
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px' }}>{t('patient.cardholderName')}</p>
             <h3 style={{ fontSize: '1.4rem', color: '#fff' }}>{cardData?.name || 'N/A'}</h3>
           </div>
           <div>
-            <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px' }}>Health ID Number</p>
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px' }}>{t('patient.healthIdNumber')}</p>
             <h3 style={{ fontSize: '1.5rem', letterSpacing: '3px', color: 'var(--secondary-color)', fontFamily: 'monospace' }}>
               {cardData?.healthId ? cardData.healthId.match(/.{1,4}/g).join('-') : 'N/A'}
             </h3>

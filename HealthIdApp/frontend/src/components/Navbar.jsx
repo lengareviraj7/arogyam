@@ -1,16 +1,21 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from 'react-i18next';
+import { LANGUAGES } from '../i18n/i18n';
 import './Navbar.css';
 
 const Navbar = () => {
+  const { t, i18n } = useTranslation();
   const { user, role, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [theme, setTheme] = useState(document.documentElement.getAttribute('data-theme') || 'dark');
+  const [langOpen, setLangOpen] = useState(false);
+  const langRef = useRef(null);
   const isAdmin = localStorage.getItem('adminAuth') === 'true';
   const isOnAdminPage = location.pathname.startsWith('/admin');
   const isLanding = location.pathname === '/';
@@ -28,6 +33,17 @@ const Navbar = () => {
     document.body.style.overflow = menuOpen ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
   }, [menuOpen]);
+
+  // Close language dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (langRef.current && !langRef.current.contains(e.target)) {
+        setLangOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleLogout = useCallback(() => {
     logout();
@@ -51,6 +67,14 @@ const Navbar = () => {
     localStorage.setItem('theme', newTheme);
   };
 
+  const changeLanguage = (code) => {
+    i18n.changeLanguage(code);
+    localStorage.setItem('language', code);
+    setLangOpen(false);
+  };
+
+  const currentLang = LANGUAGES.find(l => l.code === i18n.language) || LANGUAGES[0];
+
   const navLinkVariants = {
     hidden: { opacity: 0, x: -20 },
     visible: (i) => ({
@@ -58,6 +82,56 @@ const Navbar = () => {
       transition: { delay: i * 0.06, duration: 0.4, ease: [0.16, 1, 0.3, 1] }
     }),
   };
+
+  // Language Selector Component
+  const LanguageSelector = ({ isMobile = false }) => (
+    <div className={`lang-selector ${isMobile ? 'lang-selector-mobile' : ''}`} ref={isMobile ? null : langRef}>
+      <button
+        className="lang-toggle"
+        onClick={() => setLangOpen(!langOpen)}
+        aria-label={t('common.selectLanguage')}
+        id="language-selector-btn"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="2" y1="12" x2="22" y2="12"></line>
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+        </svg>
+        <span className="lang-current">{currentLang.nativeLabel}</span>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className={`lang-chevron ${langOpen ? 'lang-chevron-open' : ''}`}>
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </button>
+      <AnimatePresence>
+        {langOpen && (
+          <motion.div
+            className="lang-dropdown"
+            initial={{ opacity: 0, y: -8, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -8, scale: 0.96 }}
+            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+          >
+            {LANGUAGES.map((lang) => (
+              <button
+                key={lang.code}
+                className={`lang-option ${i18n.language === lang.code ? 'lang-option-active' : ''}`}
+                onClick={() => changeLanguage(lang.code)}
+                id={`lang-option-${lang.code}`}
+              >
+                <span className="lang-native">{lang.nativeLabel}</span>
+                <span className="lang-english">{lang.label}</span>
+                {i18n.language === lang.code && (
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="lang-check">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                )}
+              </button>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
 
   return (
     <>
@@ -83,19 +157,19 @@ const Navbar = () => {
           <div className="nav-desktop">
             {isAdmin && isOnAdminPage ? (
               <>
-                <Link to="/admin/dashboard" className="nav-link">Dashboard</Link>
+                <Link to="/admin/dashboard" className="nav-link">{t('nav.dashboard')}</Link>
                 <div className="nav-user-controls">
-                  <span className="user-greeting">Admin</span>
-                  <button onClick={handleAdminLogout} className="ghost-btn btn-sm">Logout</button>
+                  <span className="user-greeting">{t('nav.admin')}</span>
+                  <button onClick={handleAdminLogout} className="ghost-btn btn-sm">{t('common.logout')}</button>
                 </div>
               </>
             ) : !user ? (
               <>
-                <Link to="/patient/login" className="nav-link">Login</Link>
-                <Link to="/hospital/login" className="nav-link">Hospital Portal</Link>
-                <Link to="/admin/login" className="nav-link">Admin Portal</Link>
+                <Link to="/patient/login" className="nav-link">{t('nav.login')}</Link>
+                <Link to="/hospital/login" className="nav-link">{t('nav.hospitalPortal')}</Link>
+                <Link to="/admin/login" className="nav-link">{t('nav.adminPortal')}</Link>
                 <Link to="/patient/register" className="nav-cta">
-                  Get Started
+                  {t('nav.getStarted')}
                   <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ marginLeft: '4px' }}>
                     <path d="M1 7h12M8 2l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
@@ -105,27 +179,28 @@ const Navbar = () => {
               <>
                 {role === 'patient' && (
                   <>
-                    <Link to="/patient/dashboard" className="nav-link">Dashboard</Link>
-                    <Link to="/patient/records" className="nav-link">Records</Link>
-                    <Link to="/patient/consents" className="nav-link">Consents</Link>
-                    <Link to="/patient/healthcard" className="nav-link">Health Card</Link>
+                    <Link to="/patient/dashboard" className="nav-link">{t('nav.dashboard')}</Link>
+                    <Link to="/patient/records" className="nav-link">{t('nav.records')}</Link>
+                    <Link to="/patient/consents" className="nav-link">{t('nav.consents')}</Link>
+                    <Link to="/patient/healthcard" className="nav-link">{t('nav.healthCard')}</Link>
                   </>
                 )}
                 {role === 'hospital' && (
                   <>
-                    <Link to="/hospital/dashboard" className="nav-link">Dashboard</Link>
-                    <Link to="/hospital/search" className="nav-link">Search</Link>
-                    <Link to="/hospital/consent" className="nav-link">Consent</Link>
-                    <Link to="/hospital/upload" className="nav-link">Upload</Link>
-                    <Link to="/hospital/patients" className="nav-link">Directory</Link>
+                    <Link to="/hospital/dashboard" className="nav-link">{t('nav.dashboard')}</Link>
+                    <Link to="/hospital/search" className="nav-link">{t('nav.searchNav')}</Link>
+                    <Link to="/hospital/consent" className="nav-link">{t('nav.consent')}</Link>
+                    <Link to="/hospital/upload" className="nav-link">{t('nav.upload')}</Link>
+                    <Link to="/hospital/patients" className="nav-link">{t('nav.directory')}</Link>
                   </>
                 )}
                 <div className="nav-user-controls">
                   <span className="user-greeting">{user.name || user.hospitalName || 'User'}</span>
-                  <button onClick={handleLogout} className="ghost-btn btn-sm">Logout</button>
+                  <button onClick={handleLogout} className="ghost-btn btn-sm">{t('common.logout')}</button>
                 </div>
               </>
             )}
+            <LanguageSelector />
             <button onClick={toggleTheme} className="theme-toggle" aria-label="Toggle theme">
               {theme === 'dark' ? (
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -184,25 +259,25 @@ const Navbar = () => {
                 {isAdmin && isOnAdminPage ? (
                   <>
                     <motion.div custom={0} initial="hidden" animate="visible" variants={navLinkVariants}>
-                      <Link to="/admin/dashboard" className="mobile-link" onClick={closeMenu}>Dashboard</Link>
+                      <Link to="/admin/dashboard" className="mobile-link" onClick={closeMenu}>{t('nav.dashboard')}</Link>
                     </motion.div>
                     <motion.div custom={1} initial="hidden" animate="visible" variants={navLinkVariants}>
-                      <button onClick={handleAdminLogout} className="mobile-link">Logout</button>
+                      <button onClick={handleAdminLogout} className="mobile-link">{t('common.logout')}</button>
                     </motion.div>
                   </>
                 ) : !user ? (
                   <>
                     <motion.div custom={0} initial="hidden" animate="visible" variants={navLinkVariants}>
-                      <Link to="/patient/login" className="mobile-link" onClick={closeMenu}>Patient Login</Link>
+                      <Link to="/patient/login" className="mobile-link" onClick={closeMenu}>{t('nav.patientLogin')}</Link>
                     </motion.div>
                     <motion.div custom={1} initial="hidden" animate="visible" variants={navLinkVariants}>
-                      <Link to="/patient/register" className="mobile-link accent" onClick={closeMenu}>Register</Link>
+                      <Link to="/patient/register" className="mobile-link accent" onClick={closeMenu}>{t('common.register')}</Link>
                     </motion.div>
                     <motion.div custom={2} initial="hidden" animate="visible" variants={navLinkVariants}>
-                      <Link to="/hospital/login" className="mobile-link" onClick={closeMenu}>Hospital Portal</Link>
+                      <Link to="/hospital/login" className="mobile-link" onClick={closeMenu}>{t('nav.hospitalPortal')}</Link>
                     </motion.div>
                     <motion.div custom={3} initial="hidden" animate="visible" variants={navLinkVariants}>
-                      <Link to="/admin/login" className="mobile-link subtle" onClick={closeMenu}>Admin</Link>
+                      <Link to="/admin/login" className="mobile-link subtle" onClick={closeMenu}>{t('nav.admin')}</Link>
                     </motion.div>
                   </>
                 ) : (
@@ -210,48 +285,64 @@ const Navbar = () => {
                     {role === 'patient' && (
                       <>
                         <motion.div custom={0} initial="hidden" animate="visible" variants={navLinkVariants}>
-                          <Link to="/patient/dashboard" className="mobile-link" onClick={closeMenu}>Dashboard</Link>
+                          <Link to="/patient/dashboard" className="mobile-link" onClick={closeMenu}>{t('nav.dashboard')}</Link>
                         </motion.div>
                         <motion.div custom={1} initial="hidden" animate="visible" variants={navLinkVariants}>
-                          <Link to="/patient/records" className="mobile-link" onClick={closeMenu}>Records</Link>
+                          <Link to="/patient/records" className="mobile-link" onClick={closeMenu}>{t('nav.records')}</Link>
                         </motion.div>
                         <motion.div custom={2} initial="hidden" animate="visible" variants={navLinkVariants}>
-                          <Link to="/patient/consents" className="mobile-link" onClick={closeMenu}>Consents</Link>
+                          <Link to="/patient/consents" className="mobile-link" onClick={closeMenu}>{t('nav.consents')}</Link>
                         </motion.div>
                         <motion.div custom={3} initial="hidden" animate="visible" variants={navLinkVariants}>
-                          <Link to="/patient/healthcard" className="mobile-link" onClick={closeMenu}>Health Card</Link>
+                          <Link to="/patient/healthcard" className="mobile-link" onClick={closeMenu}>{t('nav.healthCard')}</Link>
                         </motion.div>
                       </>
                     )}
                     {role === 'hospital' && (
                       <>
                         <motion.div custom={0} initial="hidden" animate="visible" variants={navLinkVariants}>
-                          <Link to="/hospital/dashboard" className="mobile-link" onClick={closeMenu}>Dashboard</Link>
+                          <Link to="/hospital/dashboard" className="mobile-link" onClick={closeMenu}>{t('nav.dashboard')}</Link>
                         </motion.div>
                         <motion.div custom={1} initial="hidden" animate="visible" variants={navLinkVariants}>
-                          <Link to="/hospital/search" className="mobile-link" onClick={closeMenu}>Search</Link>
+                          <Link to="/hospital/search" className="mobile-link" onClick={closeMenu}>{t('nav.searchNav')}</Link>
                         </motion.div>
                         <motion.div custom={2} initial="hidden" animate="visible" variants={navLinkVariants}>
-                          <Link to="/hospital/consent" className="mobile-link" onClick={closeMenu}>Consent</Link>
+                          <Link to="/hospital/consent" className="mobile-link" onClick={closeMenu}>{t('nav.consent')}</Link>
                         </motion.div>
                         <motion.div custom={3} initial="hidden" animate="visible" variants={navLinkVariants}>
-                          <Link to="/hospital/upload" className="mobile-link" onClick={closeMenu}>Upload</Link>
+                          <Link to="/hospital/upload" className="mobile-link" onClick={closeMenu}>{t('nav.upload')}</Link>
                         </motion.div>
                         <motion.div custom={4} initial="hidden" animate="visible" variants={navLinkVariants}>
-                          <Link to="/hospital/patients" className="mobile-link" onClick={closeMenu}>Directory</Link>
+                          <Link to="/hospital/patients" className="mobile-link" onClick={closeMenu}>{t('nav.directory')}</Link>
                         </motion.div>
                       </>
                     )}
                     <motion.div custom={5} initial="hidden" animate="visible" variants={navLinkVariants} className="mobile-user-section">
                       <span className="mobile-user-name">{user.name || user.hospitalName || 'User'}</span>
-                      <button onClick={handleLogout} className="ghost-btn">Logout</button>
+                      <button onClick={handleLogout} className="ghost-btn">{t('common.logout')}</button>
                     </motion.div>
                   </>
                 )}
                 
-                <motion.div custom={6} initial="hidden" animate="visible" variants={navLinkVariants} className="mobile-theme-toggle">
+                {/* Mobile Language Selector */}
+                <motion.div custom={6} initial="hidden" animate="visible" variants={navLinkVariants} className="mobile-lang-section">
+                  <span className="mobile-section-label">{t('common.selectLanguage')}</span>
+                  <div className="mobile-lang-grid">
+                    {LANGUAGES.map((lang) => (
+                      <button
+                        key={lang.code}
+                        className={`mobile-lang-btn ${i18n.language === lang.code ? 'mobile-lang-active' : ''}`}
+                        onClick={() => changeLanguage(lang.code)}
+                      >
+                        <span className="mobile-lang-native">{lang.nativeLabel}</span>
+                      </button>
+                    ))}
+                  </div>
+                </motion.div>
+
+                <motion.div custom={7} initial="hidden" animate="visible" variants={navLinkVariants} className="mobile-theme-toggle">
                   <button onClick={toggleTheme} className="ghost-btn">
-                    {theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+                    {theme === 'dark' ? t('common.switchToLight') : t('common.switchToDark')}
                   </button>
                 </motion.div>
               </div>

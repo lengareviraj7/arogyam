@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import api from '../../api/axios';
 import { useAuth } from '../../context/AuthContext';
-import { FaPhoneAlt, FaKey } from 'react-icons/fa';
+import { FaPhoneAlt, FaKey, FaUser } from 'react-icons/fa';
 
 const PatientLogin = () => {
+  const { t } = useTranslation();
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
   const [devOTP, setDevOTP] = useState('');
@@ -53,21 +55,21 @@ const PatientLogin = () => {
       style={{ maxWidth: '400px', margin: '4rem auto' }}
     >
       <div className="glass-panel">
-        <h2 className="heading-gradient text-center" style={{ marginBottom: '2rem' }}>Patient Access</h2>
+        <h2 className="heading-gradient text-center" style={{ marginBottom: '2rem' }}>{t('patient.loginTitle')}</h2>
         
         {error && <div style={{ color: 'var(--danger)', marginBottom: '1rem', textAlign: 'center' }}>{error}</div>}
 
         {step === 1 ? (
           <form onSubmit={handleSendOTP} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             <div className="input-group">
-              <label style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Email or Phone Number</label>
+              <label style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{t('patient.loginPhoneLabel')}</label>
               <div style={{ position: 'relative', marginTop: '0.5rem' }}>
-                <FaPhoneAlt style={{ position: 'absolute', top: '14px', left: '16px', color: 'var(--text-secondary)' }} />
+                <FaUser style={{ position: 'absolute', top: '14px', left: '16px', color: 'var(--text-secondary)' }} />
                 <input 
                   type="text" 
                   className="glass-input" 
                   style={{ paddingLeft: '45px' }} 
-                  placeholder="Enter your email or phone" 
+                  placeholder={t('patient.loginPhonePlaceholder')} 
                   required 
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)} 
@@ -75,19 +77,19 @@ const PatientLogin = () => {
               </div>
             </div>
             <button type="submit" className="primary-btn" disabled={loading} style={{ width: '100%' }}>
-              {loading ? 'Sending OTP...' : 'Send OTP'}
+              {loading ? t('patient.sendingOtp') : t('patient.sendOtp')}
             </button>
           </form>
         ) : (
           <form onSubmit={handleVerifyOTP} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             {devOTP && (
               <div style={{ background: 'rgba(0, 242, 254, 0.1)', border: '1px solid rgba(0, 242, 254, 0.3)', borderRadius: '8px', padding: '1rem', textAlign: 'center' }}>
-                <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>🧪 Dev Mode — Your OTP</p>
+                <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{t('patient.devModeOtp')}</p>
                 <p style={{ fontSize: '1.5rem', fontWeight: 'bold', letterSpacing: '4px', color: 'var(--secondary-color)' }}>{devOTP}</p>
               </div>
             )}
             <div className="input-group">
-              <label style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Enter OTP</label>
+              <label style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{t('patient.enterOtp')}</label>
               <div style={{ position: 'relative', marginTop: '0.5rem' }}>
                 <FaKey style={{ position: 'absolute', top: '14px', left: '16px', color: 'var(--text-secondary)' }} />
                 <input 
@@ -100,16 +102,16 @@ const PatientLogin = () => {
                   onChange={(e) => setOtp(e.target.value)} 
                 />
               </div>
-              <p style={{ fontSize: '0.8rem', color: 'var(--success)', marginTop: '0.5rem' }}>OTP sent to {phone}</p>
+              <p style={{ fontSize: '0.8rem', color: 'var(--success)', marginTop: '0.5rem' }}>{t('patient.otpSent', { phone })}</p>
             </div>
             <button type="submit" className="primary-btn" disabled={loading} style={{ width: '100%' }}>
-              {loading ? 'Verifying...' : 'Verify & Login'}
+              {loading ? t('patient.verifying') : t('patient.verifyLogin')}
             </button>
           </form>
         )}
 
         <p className="text-center" style={{ marginTop: '2rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-          Don't have a Health ID? <Link to="/patient/register" style={{ color: 'var(--secondary-color)' }}>Register</Link>
+          {t('patient.noHealthId')} <Link to="/patient/register" style={{ color: 'var(--secondary-color)' }}>{t('patient.registerLink')}</Link>
         </p>
       </div>
     </motion.div>

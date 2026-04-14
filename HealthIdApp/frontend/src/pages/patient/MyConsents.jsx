@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import api from '../../api/axios';
 import { FaCheckCircle, FaClock, FaTimesCircle } from 'react-icons/fa';
 
 const MyConsents = () => {
+  const { t } = useTranslation();
   const [consents, setConsents] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -31,13 +33,13 @@ const MyConsents = () => {
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-      <h2 className="heading-gradient" style={{ marginBottom: '2rem' }}>Consent Requests</h2>
+      <h2 className="heading-gradient" style={{ marginBottom: '2rem' }}>{t('patient.consentsTitle')}</h2>
       
       {loading ? (
-        <div style={{ textAlign: 'center', color: 'var(--secondary-color)' }}>Loading consents...</div>
+        <div style={{ textAlign: 'center', color: 'var(--secondary-color)' }}>{t('patient.loadingConsents')}</div>
       ) : consents.length === 0 ? (
         <div className="glass-panel text-center" style={{ color: 'var(--text-secondary)', padding: '3rem' }}>
-          No consent requests found.
+          {t('patient.noConsents')}
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -51,12 +53,12 @@ const MyConsents = () => {
               style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
             >
               <div>
-                <h3 style={{ fontSize: '1.1rem', marginBottom: '0.3rem' }}>{consent.hospitalId?.hospitalName || 'Unknown Hospital'}</h3>
-                <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Requested on: {new Date(consent.createdAt).toLocaleString()}</p>
+                <h3 style={{ fontSize: '1.1rem', marginBottom: '0.3rem' }}>{consent.hospitalId?.hospitalName || t('patient.unknownHospital')}</h3>
+                <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{t('patient.requestedOn')} {new Date(consent.createdAt).toLocaleString()}</p>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.1rem' }}>
                 {getStatusIcon(consent.status)}
-                <span style={{ textTransform: 'capitalize', fontSize: '0.9rem', color: 'var(--text-primary)' }}>{consent.status}</span>
+                <span style={{ textTransform: 'capitalize', fontSize: '0.9rem', color: 'var(--text-primary)' }}>{t(`common.${consent.status}`) || consent.status}</span>
               </div>
             </motion.div>
           ))}

@@ -10,7 +10,11 @@ import generateQR from "../utils/qrGenerator.js";
 ====================================================== */
 export const registerPatient = async (req, res) => {
   try {
-    const { name, phone, aadhaar } = req.body;
+    const { name, phone, aadhaar, email } = req.body;
+
+    if (!name || !phone || !aadhaar) {
+      return res.status(400).json({ message: "Name, phone, and aadhaar required" });
+    }
 
     // check existing patient using phone
     const existingPatient = await Patient.findOne({ phone });
@@ -28,8 +32,10 @@ export const registerPatient = async (req, res) => {
       name,
       phone,
       aadhaar,
+      email,
       healthId,
       qrCode,
+      role: "PRIMARY",
     });
 
     res.status(201).json({

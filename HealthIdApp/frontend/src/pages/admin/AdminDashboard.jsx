@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import api from '../../api/axios';
 import './AdminDashboard.css';
 
@@ -111,17 +112,18 @@ const timeAgo = (dateStr) => {
    SIDEBAR NAV CONFIG
 ============================================================== */
 const NAV_ITEMS = [
-  { key: 'overview', label: 'Overview', icon: Icons.Overview, section: 'Dashboard' },
-  { key: 'hospitals', label: 'Hospitals', icon: Icons.Hospital, section: 'Management' },
-  { key: 'patients', label: 'Patients', icon: Icons.Patient, section: 'Management' },
-  { key: 'records', label: 'Records', icon: Icons.Record, section: 'Data' },
-  { key: 'consents', label: 'Consents', icon: Icons.Consent, section: 'Data' },
+  { key: 'overview', labelKey: 'admin.overviewLabel', icon: Icons.Overview, sectionKey: 'admin.sectionDashboard' },
+  { key: 'hospitals', labelKey: 'admin.hospitalsLabel', icon: Icons.Hospital, sectionKey: 'admin.sectionManagement' },
+  { key: 'patients', labelKey: 'admin.patientsLabel', icon: Icons.Patient, sectionKey: 'admin.sectionManagement' },
+  { key: 'records', labelKey: 'admin.recordsLabel', icon: Icons.Record, sectionKey: 'admin.sectionData' },
+  { key: 'consents', labelKey: 'admin.consentsLabel', icon: Icons.Consent, sectionKey: 'admin.sectionData' },
 ];
 
 /* ==============================================================
    ADMIN DASHBOARD — MAIN COMPONENT
 ============================================================== */
 const AdminDashboard = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [activeView, setActiveView] = useState('overview');
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -210,7 +212,7 @@ const AdminDashboard = () => {
       setSelectedHospital(null);
       await Promise.all([fetchHospitals(), fetchStats()]);
     } catch (err) {
-      alert('Action failed. Please try again.');
+      alert(t('admin.actionFailed'));
     }
   };
 
@@ -304,8 +306,8 @@ const AdminDashboard = () => {
   const renderOverview = () => (
     <motion.div key="overview" variants={pageVariants} initial="hidden" animate="visible" exit="exit">
       <div className="admin-page-header">
-        <h2>Dashboard Overview</h2>
-        <p>Real-time system metrics and activity</p>
+        <h2>{t('admin.dashboardOverview')}</h2>
+        <p>{t('admin.realtimeMetrics')}</p>
       </div>
 
       {/* Stat Cards */}
@@ -314,42 +316,42 @@ const AdminDashboard = () => {
           <div className="stat-card-top">
             <div className="stat-icon-wrapper">👥</div>
             {stats?.recentPatients > 0 && (
-              <span className="stat-change positive"><Icons.ArrowUp /> +{stats.recentPatients} this week</span>
+              <span className="stat-change positive"><Icons.ArrowUp /> +{stats.recentPatients} {t('admin.thisWeek')}</span>
             )}
           </div>
           <div className="stat-value">{stats?.totalPatients ?? '—'}</div>
-          <div className="stat-label">Total Patients</div>
+          <div className="stat-label">{t('admin.totalPatients')}</div>
         </motion.div>
 
         <motion.div className="stat-card accent-teal" variants={staggerItem}>
           <div className="stat-card-top">
             <div className="stat-icon-wrapper">🏥</div>
             {stats?.recentHospitals > 0 && (
-              <span className="stat-change positive"><Icons.ArrowUp /> +{stats.recentHospitals} this week</span>
+              <span className="stat-change positive"><Icons.ArrowUp /> +{stats.recentHospitals} {t('admin.thisWeek')}</span>
             )}
           </div>
           <div className="stat-value">{stats?.totalHospitals ?? '—'}</div>
-          <div className="stat-label">Registered Hospitals</div>
+          <div className="stat-label">{t('admin.registeredHospitals')}</div>
         </motion.div>
 
         <motion.div className="stat-card accent-amber" variants={staggerItem}>
           <div className="stat-card-top">
             <div className="stat-icon-wrapper">📋</div>
             {stats?.recentRecords > 0 && (
-              <span className="stat-change positive"><Icons.ArrowUp /> +{stats.recentRecords} this week</span>
+              <span className="stat-change positive"><Icons.ArrowUp /> +{stats.recentRecords} {t('admin.thisWeek')}</span>
             )}
           </div>
           <div className="stat-value">{stats?.totalRecords ?? '—'}</div>
-          <div className="stat-label">Medical Records</div>
+          <div className="stat-label">{t('admin.medicalRecords')}</div>
         </motion.div>
 
         <motion.div className="stat-card accent-purple" variants={staggerItem}>
           <div className="stat-card-top">
             <div className="stat-icon-wrapper">🛡️</div>
-            <span className="stat-change neutral">{stats?.approvedConsents ?? 0} approved</span>
+            <span className="stat-change neutral">{stats?.approvedConsents ?? 0} {t('admin.approvedSuffix')}</span>
           </div>
           <div className="stat-value">{stats?.totalConsents ?? '—'}</div>
-          <div className="stat-label">Consent Requests</div>
+          <div className="stat-label">{t('admin.consentRequests')}</div>
         </motion.div>
       </motion.div>
 
@@ -358,22 +360,22 @@ const AdminDashboard = () => {
         <motion.div className="quick-action-card" variants={staggerItem} onClick={() => handleNavClick('hospitals')}>
           <div className="quick-action-icon">⏳</div>
           <div>
-            <h4>{stats?.pendingHospitals ?? 0} Pending Approvals</h4>
-            <p>Review hospital registration requests</p>
+            <h4>{stats?.pendingHospitals ?? 0} {t('admin.pendingApprovals', { count: '' }).trim()}</h4>
+            <p>{t('admin.reviewRegistrations')}</p>
           </div>
         </motion.div>
         <motion.div className="quick-action-card" variants={staggerItem} onClick={() => handleNavClick('patients')}>
           <div className="quick-action-icon">👤</div>
           <div>
-            <h4>Manage Patients</h4>
-            <p>View all registered patient profiles</p>
+            <h4>{t('admin.managePatients')}</h4>
+            <p>{t('admin.viewAllPatients')}</p>
           </div>
         </motion.div>
         <motion.div className="quick-action-card" variants={staggerItem} onClick={() => handleNavClick('records')}>
           <div className="quick-action-icon">📁</div>
           <div>
-            <h4>Medical Records</h4>
-            <p>Monitor uploaded health records</p>
+            <h4>{t('admin.medicalRecordsAction')}</h4>
+            <p>{t('admin.monitorRecords')}</p>
           </div>
         </motion.div>
       </motion.div>
@@ -381,47 +383,47 @@ const AdminDashboard = () => {
       {/* Activity + System Health */}
       <div className="activity-section">
         <motion.div className="activity-feed" variants={staggerItem} initial="hidden" animate="visible">
-          <h3>Recent Activity</h3>
+          <h3>{t('admin.recentActivity')}</h3>
           {hospitals.slice(0, 5).map((h, i) => (
             <div className="activity-item" key={h._id || i}>
               <div className={`activity-dot ${h.status === 'approved' ? 'dot-teal' : h.status === 'rejected' ? 'dot-pink' : 'dot-amber'}`} />
               <div className="activity-text">
                 <p>
                   <strong>{h.hospitalName}</strong>
-                  {h.status === 'pending' && ' submitted registration'}
-                  {h.status === 'approved' && ' was approved'}
-                  {h.status === 'rejected' && ' was rejected'}
+                  {h.status === 'pending' && t('admin.submittedRegistration')}
+                  {h.status === 'approved' && t('admin.wasApproved')}
+                  {h.status === 'rejected' && t('admin.wasRejected')}
                 </p>
                 <span>{timeAgo(h.updatedAt || h.createdAt)}</span>
               </div>
             </div>
           ))}
           {hospitals.length === 0 && (
-            <p style={{ color: 'var(--text-tertiary)', padding: '1rem 0', fontSize: 'var(--text-sm)' }}>No recent activity</p>
+            <p style={{ color: 'var(--text-tertiary)', padding: '1rem 0', fontSize: 'var(--text-sm)' }}>{t('admin.noRecentActivity')}</p>
           )}
         </motion.div>
 
         <motion.div className="system-health" variants={staggerItem} initial="hidden" animate="visible">
-          <h3>System Status</h3>
+          <h3>{t('admin.systemStatus')}</h3>
           <div className="health-item">
-            <span className="health-label">Approved Hospitals</span>
+            <span className="health-label">{t('admin.approvedHospitals')}</span>
             <span className="health-value">{stats?.approvedHospitals ?? 0}</span>
           </div>
           <div className="health-item">
-            <span className="health-label">Pending Hospitals</span>
+            <span className="health-label">{t('admin.pendingHospitals')}</span>
             <span className={`health-value ${(stats?.pendingHospitals ?? 0) > 0 ? 'warning' : ''}`}>{stats?.pendingHospitals ?? 0}</span>
           </div>
           <div className="health-item">
-            <span className="health-label">Rejected Hospitals</span>
+            <span className="health-label">{t('admin.rejectedHospitals')}</span>
             <span className={`health-value ${(stats?.rejectedHospitals ?? 0) > 0 ? 'danger' : ''}`}>{stats?.rejectedHospitals ?? 0}</span>
           </div>
           <div className="health-item">
-            <span className="health-label">Pending Consents</span>
+            <span className="health-label">{t('admin.pendingConsents')}</span>
             <span className={`health-value ${(stats?.pendingConsents ?? 0) > 0 ? 'warning' : ''}`}>{stats?.pendingConsents ?? 0}</span>
           </div>
           <div className="health-item">
-            <span className="health-label">Database Status</span>
-            <span className="health-value">Online</span>
+            <span className="health-label">{t('admin.databaseStatus')}</span>
+            <span className="health-value">{t('admin.online')}</span>
           </div>
         </motion.div>
       </div>
@@ -434,20 +436,20 @@ const AdminDashboard = () => {
   const renderHospitals = () => (
     <motion.div key="hospitals" variants={pageVariants} initial="hidden" animate="visible" exit="exit">
       <div className="admin-page-header">
-        <h2>Hospital Management</h2>
-        <p>Review, approve, and manage hospital registrations</p>
+        <h2>{t('admin.hospitalManagement')}</h2>
+        <p>{t('admin.hospitalManagementDesc')}</p>
       </div>
 
       <div className="admin-table-wrapper">
         <div className="admin-table-header">
-          <h3>All Hospitals ({filteredHospitals.length})</h3>
+          <h3>{t('admin.allHospitals')} ({filteredHospitals.length})</h3>
           <div className="table-controls">
             <div className="search-input-wrap">
               <Icons.Search />
               <input
                 type="text"
                 className="table-search"
-                placeholder="Search hospitals..."
+                placeholder={t('admin.searchHospitals')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -458,7 +460,7 @@ const AdminDashboard = () => {
                 className={`table-filter-btn ${filterStatus === f ? 'active' : ''}`}
                 onClick={() => setFilterStatus(f)}
               >
-                {f === 'all' ? 'All' : f.charAt(0).toUpperCase() + f.slice(1)}
+                {t(`common.${f}`)}
               </button>
             ))}
           </div>
@@ -467,20 +469,20 @@ const AdminDashboard = () => {
         {filteredHospitals.length === 0 ? (
           <div className="admin-empty">
             <div className="empty-icon">🏥</div>
-            <h4>No hospitals found</h4>
-            <p>Try adjusting your search or filter criteria</p>
+            <h4>{t('admin.noHospitalsFound')}</h4>
+            <p>{t('admin.adjustSearch')}</p>
           </div>
         ) : (
           <>
             <table className="admin-table">
               <thead>
                 <tr>
-                  <th>Hospital Name</th>
-                  <th>Reg. Number</th>
-                  <th>Email</th>
-                  <th>Status</th>
-                  <th>Registered</th>
-                  <th>Actions</th>
+                  <th>{t('admin.hospitalName')}</th>
+                  <th>{t('admin.regNumber')}</th>
+                  <th>{t('admin.email')}</th>
+                  <th>{t('admin.status')}</th>
+                  <th>{t('admin.registered')}</th>
+                  <th>{t('admin.actions')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -498,16 +500,16 @@ const AdminDashboard = () => {
                     <td>{formatDate(h.createdAt)}</td>
                     <td>
                       <div className="action-btn-group">
-                        <button className="action-btn view admin-tooltip" data-tooltip="View Details" onClick={() => handleViewHospital(h._id)}>
+                        <button className="action-btn view admin-tooltip" data-tooltip={t('admin.viewDetails')} onClick={() => handleViewHospital(h._id)}>
                           <Icons.Eye />
                         </button>
                         {h.status === 'pending' && (
                           <>
-                            <button className="action-btn approve admin-tooltip" data-tooltip="Approve" onClick={() => setConfirmAction({ id: h._id, action: 'approve', name: h.hospitalName })}><Icons.Check /> Approve</button>
-                            <button className="action-btn reject admin-tooltip" data-tooltip="Reject" onClick={() => setConfirmAction({ id: h._id, action: 'reject', name: h.hospitalName })}><Icons.X /> Reject</button>
+                            <button className="action-btn approve admin-tooltip" data-tooltip={t('common.approve')} onClick={() => setConfirmAction({ id: h._id, action: 'approve', name: h.hospitalName })}><Icons.Check /> {t('common.approve')}</button>
+                            <button className="action-btn reject admin-tooltip" data-tooltip={t('common.reject')} onClick={() => setConfirmAction({ id: h._id, action: 'reject', name: h.hospitalName })}><Icons.X /> {t('common.reject')}</button>
                           </>
                         )}
-                        <button className="action-btn delete admin-tooltip" data-tooltip="Delete" onClick={() => setConfirmAction({ id: h._id, action: 'delete', name: h.hospitalName })}><Icons.Trash /></button>
+                        <button className="action-btn delete admin-tooltip" data-tooltip={t('common.delete')} onClick={() => setConfirmAction({ id: h._id, action: 'delete', name: h.hospitalName })}><Icons.Trash /></button>
                       </div>
                     </td>
                   </motion.tr>
@@ -515,7 +517,7 @@ const AdminDashboard = () => {
               </tbody>
             </table>
             <div className="table-pagination">
-              <span className="pagination-info">Showing {filteredHospitals.length} of {hospitals.length} hospitals</span>
+              <span className="pagination-info">{t('admin.showing', { count: filteredHospitals.length, total: hospitals.length })}</span>
             </div>
           </>
         )}
@@ -529,20 +531,20 @@ const AdminDashboard = () => {
   const renderPatients = () => (
     <motion.div key="patients" variants={pageVariants} initial="hidden" animate="visible" exit="exit">
       <div className="admin-page-header">
-        <h2>Patient Registry</h2>
-        <p>All registered patients and their Health IDs</p>
+        <h2>{t('admin.patientRegistry')}</h2>
+        <p>{t('admin.patientRegistryDesc')}</p>
       </div>
 
       <div className="admin-table-wrapper">
         <div className="admin-table-header">
-          <h3>All Patients ({filteredPatients.length})</h3>
+          <h3>{t('admin.allPatients')} ({filteredPatients.length})</h3>
           <div className="table-controls">
             <div className="search-input-wrap">
               <Icons.Search />
               <input
                 type="text"
                 className="table-search"
-                placeholder="Search by name, Health ID, phone..."
+                placeholder={t('admin.searchPatients')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -553,19 +555,19 @@ const AdminDashboard = () => {
         {filteredPatients.length === 0 ? (
           <div className="admin-empty">
             <div className="empty-icon">👤</div>
-            <h4>No patients found</h4>
-            <p>{searchQuery ? 'Try a different search term' : 'No patients registered yet'}</p>
+            <h4>{t('admin.noPatientsFound')}</h4>
+            <p>{searchQuery ? t('admin.tryDifferentSearch') : t('admin.noPatientsYet')}</p>
           </div>
         ) : (
           <>
             <table className="admin-table">
               <thead>
                 <tr>
-                  <th>Name</th>
-                  <th>Health ID</th>
-                  <th>Phone</th>
-                  <th>Blood Group</th>
-                  <th>Registered</th>
+                  <th>{t('common.name')}</th>
+                  <th>{t('admin.healthId')}</th>
+                  <th>{t('common.phone')}</th>
+                  <th>{t('admin.bloodGroup')}</th>
+                  <th>{t('admin.registered')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -586,7 +588,7 @@ const AdminDashboard = () => {
               </tbody>
             </table>
             <div className="table-pagination">
-              <span className="pagination-info">Showing {filteredPatients.length} of {patients.length} patients</span>
+              <span className="pagination-info">{t('admin.showingPatients', { count: filteredPatients.length, total: patients.length })}</span>
             </div>
           </>
         )}
@@ -600,20 +602,20 @@ const AdminDashboard = () => {
   const renderRecords = () => (
     <motion.div key="records" variants={pageVariants} initial="hidden" animate="visible" exit="exit">
       <div className="admin-page-header">
-        <h2>Medical Records</h2>
-        <p>Overview of all uploaded medical records across hospitals</p>
+        <h2>{t('admin.medicalRecordsTitle')}</h2>
+        <p>{t('admin.medicalRecordsDesc')}</p>
       </div>
 
       <div className="admin-table-wrapper">
         <div className="admin-table-header">
-          <h3>All Records ({filteredRecords.length})</h3>
+          <h3>{t('admin.allRecords')} ({filteredRecords.length})</h3>
           <div className="table-controls">
             <div className="search-input-wrap">
               <Icons.Search />
               <input
                 type="text"
                 className="table-search"
-                placeholder="Search records..."
+                placeholder={t('admin.searchRecords')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -624,19 +626,19 @@ const AdminDashboard = () => {
         {filteredRecords.length === 0 ? (
           <div className="admin-empty">
             <div className="empty-icon">📋</div>
-            <h4>No records found</h4>
-            <p>{searchQuery ? 'Try a different search term' : 'No medical records uploaded yet'}</p>
+            <h4>{t('admin.noRecordsFound')}</h4>
+            <p>{searchQuery ? t('admin.tryDifferentSearch') : t('admin.noRecordsYet')}</p>
           </div>
         ) : (
           <>
             <table className="admin-table">
               <thead>
                 <tr>
-                  <th>Patient</th>
-                  <th>Health ID</th>
-                  <th>Hospital</th>
-                  <th>Record Type</th>
-                  <th>Uploaded</th>
+                  <th>{t('admin.patient')}</th>
+                  <th>{t('admin.healthId')}</th>
+                  <th>{t('admin.hospitalCol')}</th>
+                  <th>{t('admin.recordType')}</th>
+                  <th>{t('admin.uploadedDate')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -657,7 +659,7 @@ const AdminDashboard = () => {
               </tbody>
             </table>
             <div className="table-pagination">
-              <span className="pagination-info">Showing {filteredRecords.length} of {records.length} records</span>
+              <span className="pagination-info">{t('admin.showingRecords', { count: filteredRecords.length, total: records.length })}</span>
             </div>
           </>
         )}
@@ -671,20 +673,20 @@ const AdminDashboard = () => {
   const renderConsents = () => (
     <motion.div key="consents" variants={pageVariants} initial="hidden" animate="visible" exit="exit">
       <div className="admin-page-header">
-        <h2>Consent Management</h2>
-        <p>Track all patient consent requests and their statuses</p>
+        <h2>{t('admin.consentManagement')}</h2>
+        <p>{t('admin.consentManagementDesc')}</p>
       </div>
 
       <div className="admin-table-wrapper">
         <div className="admin-table-header">
-          <h3>All Consents ({filteredConsents.length})</h3>
+          <h3>{t('admin.allConsents')} ({filteredConsents.length})</h3>
           <div className="table-controls">
             <div className="search-input-wrap">
               <Icons.Search />
               <input
                 type="text"
                 className="table-search"
-                placeholder="Search consents..."
+                placeholder={t('admin.searchConsents')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -695,7 +697,7 @@ const AdminDashboard = () => {
                 className={`table-filter-btn ${filterStatus === f ? 'active' : ''}`}
                 onClick={() => setFilterStatus(f)}
               >
-                {f === 'all' ? 'All' : f.charAt(0).toUpperCase() + f.slice(1)}
+                {t(`common.${f}`)}
               </button>
             ))}
           </div>
@@ -704,19 +706,19 @@ const AdminDashboard = () => {
         {filteredConsents.length === 0 ? (
           <div className="admin-empty">
             <div className="empty-icon">🛡️</div>
-            <h4>No consents found</h4>
-            <p>{searchQuery ? 'Try a different search term' : 'No consent requests yet'}</p>
+            <h4>{t('admin.noConsentsFound')}</h4>
+            <p>{searchQuery ? t('admin.tryDifferentSearch') : t('admin.noConsentsYet')}</p>
           </div>
         ) : (
           <>
             <table className="admin-table">
               <thead>
                 <tr>
-                  <th>Patient</th>
-                  <th>Hospital</th>
-                  <th>Status</th>
-                  <th>Requested</th>
-                  <th>Expires</th>
+                  <th>{t('admin.patient')}</th>
+                  <th>{t('admin.hospitalCol')}</th>
+                  <th>{t('admin.status')}</th>
+                  <th>{t('admin.requested')}</th>
+                  <th>{t('admin.expires')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -737,7 +739,7 @@ const AdminDashboard = () => {
               </tbody>
             </table>
             <div className="table-pagination">
-              <span className="pagination-info">Showing {filteredConsents.length} of {consents.length} consents</span>
+              <span className="pagination-info">{t('admin.showingConsents', { count: filteredConsents.length, total: consents.length })}</span>
             </div>
           </>
         )}
@@ -771,7 +773,7 @@ const AdminDashboard = () => {
             transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
             style={{ width: 40, height: 40, borderRadius: '50%', border: '3px solid var(--border-subtle)', borderTopColor: 'var(--accent-primary)' }}
           />
-          <p style={{ color: 'var(--text-tertiary)', fontSize: 'var(--text-sm)' }}>Loading dashboard...</p>
+          <p style={{ color: 'var(--text-tertiary)', fontSize: 'var(--text-sm)' }}>{t('admin.loadingDashboard')}</p>
         </div>
       </div>
     );
@@ -786,26 +788,26 @@ const AdminDashboard = () => {
         {/* ── Sidebar ── */}
         <aside className={`admin-sidebar ${sidebarOpen ? 'sidebar-open' : ''}`}>
           <div className="sidebar-header">
-            <div className="admin-badge"><Icons.Shield /> Super Admin</div>
+            <div className="admin-badge"><Icons.Shield /> {t('admin.superAdmin')}</div>
             <h3>HealthID</h3>
-            <p>Administration Portal</p>
+            <p>{t('admin.adminPortal')}</p>
           </div>
 
           <nav className="sidebar-nav">
             {(() => {
               let lastSection = '';
               return NAV_ITEMS.map((item) => {
-                const showLabel = item.section !== lastSection;
-                lastSection = item.section;
+                const showLabel = item.sectionKey !== lastSection;
+                lastSection = item.sectionKey;
                 return (
                   <React.Fragment key={item.key}>
-                    {showLabel && <div className="sidebar-section-label">{item.section}</div>}
+                    {showLabel && <div className="sidebar-section-label">{t(item.sectionKey)}</div>}
                     <button
                       className={`sidebar-nav-item ${activeView === item.key ? 'active' : ''}`}
                       onClick={() => handleNavClick(item.key)}
                     >
                       <span className="nav-icon"><item.icon /></span>
-                      {item.label}
+                      {t(item.labelKey)}
                       {counts[item.key] != null && (
                         <span className="nav-count">{counts[item.key]}</span>
                       )}
@@ -818,7 +820,7 @@ const AdminDashboard = () => {
 
           <div className="sidebar-footer">
             <button className="sidebar-logout-btn" onClick={handleLogout}>
-              <Icons.Logout /> Logout
+              <Icons.Logout /> {t('common.logout')}
             </button>
           </div>
         </aside>
@@ -870,31 +872,31 @@ const AdminDashboard = () => {
 
               <div className="detail-grid">
                 <div className="detail-item">
-                  <label>Registration Number</label>
+                  <label>{t('admin.regNumber')}</label>
                   <p>{selectedHospital.regNumber}</p>
                 </div>
                 <div className="detail-item">
-                  <label>Email</label>
+                  <label>{t('admin.email')}</label>
                   <p>{selectedHospital.email}</p>
                 </div>
                 <div className="detail-item">
-                  <label>Phone</label>
+                  <label>{t('common.phone')}</label>
                   <p>{selectedHospital.phone || '—'}</p>
                 </div>
                 <div className="detail-item">
-                  <label>Registered On</label>
+                  <label>{t('admin.registeredOn')}</label>
                   <p>{formatDate(selectedHospital.createdAt)}</p>
                 </div>
                 <div className="detail-item full-width">
-                  <label>Address</label>
+                  <label>{t('common.address')}</label>
                   <p>{selectedHospital.address || '—'}</p>
                 </div>
                 {selectedHospital.licencePdf && (
                   <div className="detail-item full-width">
-                    <label>Licence Document</label>
+                    <label>{t('admin.licenceDocument')}</label>
                     <p>
                       <a href={`http://localhost:8000${selectedHospital.licencePdf}`} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-primary)' }}>
-                        View Document ↗
+                        {t('admin.viewDocument')} ↗
                       </a>
                     </p>
                   </div>
@@ -904,10 +906,10 @@ const AdminDashboard = () => {
               {selectedHospital.status === 'pending' && (
                 <div style={{ display: 'flex', gap: 'var(--space-sm)', marginTop: 'var(--space-lg)' }}>
                   <button className="action-btn approve" style={{ padding: '10px 24px', fontSize: '13px' }} onClick={() => { handleHospitalAction(selectedHospital._id, 'approve'); }}>
-                    <Icons.Check /> Approve Hospital
+                    <Icons.Check /> {t('admin.approveHospital')}
                   </button>
                   <button className="action-btn reject" style={{ padding: '10px 24px', fontSize: '13px' }} onClick={() => { handleHospitalAction(selectedHospital._id, 'reject'); }}>
-                    <Icons.X /> Reject Hospital
+                    <Icons.X /> {t('admin.rejectHospital')}
                   </button>
                 </div>
               )}
@@ -934,24 +936,24 @@ const AdminDashboard = () => {
               onClick={(e) => e.stopPropagation()}
             >
               <h4>
-                {confirmAction.action === 'approve' && '✅ Approve Hospital'}
-                {confirmAction.action === 'reject' && '❌ Reject Hospital'}
-                {confirmAction.action === 'delete' && '🗑️ Delete Hospital'}
+                {confirmAction.action === 'approve' && `✅ ${t('admin.approveHospital')}`}
+                {confirmAction.action === 'reject' && `❌ ${t('admin.rejectHospital')}`}
+                {confirmAction.action === 'delete' && `🗑️ ${t('admin.deleteHospital')}`}
               </h4>
               <p>
-                Are you sure you want to {confirmAction.action} <strong>{confirmAction.name}</strong>?
-                {confirmAction.action === 'delete' && ' This action cannot be undone.'}
+                {t('admin.areYouSureAction', { action: confirmAction.action, name: confirmAction.name })}
+                {confirmAction.action === 'delete' && ` ${t('admin.actionCannotBeUndone')}`}
               </p>
               <div className="confirm-dialog-actions">
-                <button className="secondary-btn" style={{ padding: '10px 24px', fontSize: '14px' }} onClick={() => setConfirmAction(null)}>Cancel</button>
+                <button className="secondary-btn" style={{ padding: '10px 24px', fontSize: '14px' }} onClick={() => setConfirmAction(null)}>{t('common.cancel')}</button>
                 <button
                   className={`action-btn ${confirmAction.action === 'delete' ? 'reject' : confirmAction.action}`}
                   style={{ padding: '10px 24px', fontSize: '14px' }}
                   onClick={() => handleHospitalAction(confirmAction.id, confirmAction.action)}
                 >
-                  {confirmAction.action === 'approve' && 'Approve'}
-                  {confirmAction.action === 'reject' && 'Reject'}
-                  {confirmAction.action === 'delete' && 'Delete'}
+                  {confirmAction.action === 'approve' && t('common.approve')}
+                  {confirmAction.action === 'reject' && t('common.reject')}
+                  {confirmAction.action === 'delete' && t('common.delete')}
                 </button>
               </div>
             </motion.div>
