@@ -9,7 +9,7 @@ import { Toaster } from 'sonner';
 import Navbar from './components/Navbar';
 import SmoothScroll from './components/SmoothScroll';
 import Preloader from './components/Preloader';
-import CustomCursor from './components/CustomCursor';
+
 import ScrollProgress from './components/ScrollProgress';
 
 // Public Pages
@@ -82,7 +82,7 @@ function AppInner() {
   return (
     <>
       <Preloader onComplete={() => setPreloaderDone(true)} />
-      <CustomCursor />
+
       <ScrollProgress />
       <div className="grain-overlay" aria-hidden="true" />
       
